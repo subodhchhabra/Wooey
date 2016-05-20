@@ -1,15 +1,9 @@
+{% extends "wooey/base.html" %}
+{% load i18n %}
+{% load wooey_tags %}
 
-{% extends "layout.html" %}
-
-{% block page_title %}Page Not Found{% endblock %}
-
-{% block content %}
-<div class="jumbotron">
-    <div class="text-center">
-        <h1>404</h1>
-        <p>Sorry, that page doesn't exist.</p>
-        <p>Want to <a href="{{ url_for('public.home') }}">go home</a> instead?</p>
-    </div>
-</div>
-{% endblock %}
-
+{% block left_sidebar %}{% endblock left_sidebar %}
+{% block center_content_class %}col-md-12 col-xs-12{% endblock center_content_class %}
+{% block center_content %}
+<div class="row"><div class="col-md-12 col-xs-12">404</div></div>
+{% endblock center_content %}

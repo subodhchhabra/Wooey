@@ -1,28 +1,35 @@
+import os
 from setuptools import setup, find_packages
 
-with open('README.md') as readme:
-    long_description = readme.read()
+with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
+    README = readme.read()
 
-version = __import__('wooey').__version__
+# allow setup.py to be run from any path
+os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name='Wooey',
-    version=version,
-    url='http://github.com/mfitzp/Wooey',
-    author='Martin Fitzpatrick',
-    author_email='martin.fitzpatrick@gmail.com',
-    description='Simple Web UIs for Python Scripts',
-    license='MIT',
+    name='wooey',
+    version='0.9.2',
     packages=find_packages(),
+    scripts=['scripts/wooify'],
+    entry_points={'console_scripts': ['wooify = wooey.backend.command_line:bootstrap', ]},
+    install_requires = ['Django>=1.6', 'django-autoslug', 'django-celery', 'six', 'clinto==0.1.2'],
     include_package_data=True,
+    description='A Django app which creates a web GUI and task interface for argparse scripts',
+    url='http://www.github.com/wooey/wooey',
+    author='Chris Mitchell <chris.mit7@gmail.com>, Martin Fitzpatrick <martin.fitzpatrick@gmail.com>',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Environment :: Web Environment',
+        'Framework :: Django',
         'Intended Audience :: Developers',
-        'Topic :: Desktop Environment',
-        'Topic :: Software Development :: Build Tools',
-        'Topic :: Software Development :: Widget Sets',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4'
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
-    long_description=long_description,
 )

@@ -1,14 +1,9 @@
+{% extends "wooey/base.html" %}
+{% load i18n %}
+{% load wooey_tags %}
 
-{% extends "layout.html" %}
-
-{% block page_title %}Server error{% endblock %}
-
-{% block content %}
-<div class="jumbotron">
-    <div class="text-center">
-        <h1>500</h1>
-        <p>Sorry, something went wrong on our system. Don't panic, we are fixing it! Please try again later.</p>
-    </div>
-</div>
-{% endblock %}
-
+{% block left_sidebar %}{% endblock left_sidebar %}
+{% block center_content_class %}col-md-12 col-xs-12{% endblock center_content_class %}
+{% block center_content %}
+<div class="row"><div class="col-md-12 col-xs-12">500</div></div>
+{% endblock center_content %}

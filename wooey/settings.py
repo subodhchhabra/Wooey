@@ -1,60 +1,31 @@
-# -*- coding: utf-8 -*-
-import os
-
-os_env = os.environ
-
-
-class Config(object):
-    SECRET_KEY = os_env.get('WOOEY_SECRET', 'not-so-secret-key')  # TODO: Change me
-    APP_DIR = os.path.abspath(os.path.dirname(__file__))  # This directory
-    PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
-    BCRYPT_LOG_ROUNDS = 13
-    ASSETS_DEBUG = False
-    DEBUG_TB_ENABLED = False  # Disable Debug toolbar
-    DEBUG_TB_INTERCEPT_REDIRECTS = False
-    CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
-
-    SITE_NAME = "Wooey!"
-    SITE_TAGLINE = "A web UI for Python scripts."
-
-    QUEUE_MAXIMUM_RUNNING_JOBS = 4  # Maximum number of running jobs (processes)
-    QUEUE_MAXIMUM_FINISHED_JOBS = 50  # Maximum number of finished (error/complete) jobs in the Queue
-
-    EXCLUDED_EXTENSIONS_FOR_DOWNLOAD = []
-    EXCLUDED_FILES_FOR_DOWNLOAD = []
-
-    EXCLUDED_FILES_FOR_UPLOAD = []
-    EXCLUDED_EXTENSIONS_FOR_UPLOAD = []
-
-    GITHUB_URL = "https://github.com/mfitzp/Wooey"
-
-    DEFAULT_PROGRESS_REGEX = '^Progress ([0-9]*\.?[0-9]+.)%$'  # Line-wise regex search for progress
-
-class ProdConfig(Config):
-    """Production configuration."""
-    ENV = 'prod'
-    DEBUG = False
-    # Database URL for Heroku deployment is in DATABASE_URL env variable
-    SQLALCHEMY_DATABASE_URI = os_env.get('DATABASE_URL', None)
-    DEBUG_TB_ENABLED = False  # Disable Debug toolbar
+__author__ = 'chris'
+from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 
-class DevConfig(Config):
-    """Development configuration."""
-    ENV = 'dev'
-    DEBUG = True
-    DB_NAME = 'dev.db'
-    # Put the db file in project root
-    DB_PATH = os.path.join(Config.PROJECT_ROOT, DB_NAME)
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///{0}'.format(DB_PATH)
-    DEBUG_TB_ENABLED = True
-    ASSETS_DEBUG = True  # Don't bundle/minify static assets
-    CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
+def get(key, default):
+    return getattr(settings, key, default)
 
+# AUTH based settings
+WOOEY_ALLOW_ANONYMOUS = get('WOOEY_ALLOW_ANONYMOUS', True)
+WOOEY_AUTH = get('WOOEY_AUTH', True)
+WOOEY_LOGIN_URL = get('WOOEY_LOGIN_URL', settings.LOGIN_URL)
+WOOEY_REGISTER_URL = get('WOOEY_REGISTER_URL', '/accounts/register/')
 
-class TestConfig(Config):
-    TESTING = True
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
-    BCRYPT_LOG_ROUNDS = 1  # For faster tests
-    WTF_CSRF_ENABLED = False  # Allows form testing
+# Celery and job queue settings
+WOOEY_CELERY = get('WOOEY_CELERY', True)
+WOOEY_CELERY_TASKS = get('WOOEY_CELERY_TASKS', 'wooey.tasks')
+
+# Site setup settings
+WOOEY_DEFAULT_SCRIPT_GROUP = get('WOOEY_DEFAULT_SCRIPT_GROUP', _('Scripts'))
+WOOEY_EPHEMERAL_FILES = get('WOOEY_EPHEMERAL_FILES', False)
+WOOEY_FILE_DIR = get('WOOEY_FILE_DIR', 'wooey_files')
+WOOEY_JOB_EXPIRATION = get('WOOEY_JOB_EXPIRATION', {'anonymous': None, 'users': None})
+WOOEY_REALTIME_CACHE = get('WOOEY_REALTIME_CACHE', None)
+WOOEY_SCRIPT_DIR = get('WOOEY_SCRIPT_DIR', 'wooey_scripts')
+
+# User interface settings
+WOOEY_SHOW_LOCKED_SCRIPTS = get('WOOEY_SHOW_LOCKED_SCRIPTS', True)
+WOOEY_SITE_NAME = get('WOOEY_SITE_NAME', _('Wooey!'))
+WOOEY_SITE_TAG = get('WOOEY_SITE_TAG', _('A web UI for Python scripts'))
+

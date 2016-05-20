@@ -1,3 +1,13 @@
-# Included because many Paas's require a requirements.txt file in the project root
-# Just installs the production requirements.
--r requirements/prod.txt
+django
+django-autoslug
+django-celery
+nose
+factory-boy
+coveralls
+six
+clinto==0.1.2
+tox
+boto
+django-storages-redux
+sphinx
+mock

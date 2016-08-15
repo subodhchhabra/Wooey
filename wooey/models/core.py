@@ -130,6 +130,9 @@ class ScriptVersion(ModelDiffMixin, WooeyPy2Mixin, models.Model):
         path = local_storage.path(self.script_path.path)
         return path if self.script.execute_full_path else os.path.split(path)[1]
 
+    def get_parameters(self):
+        return ScriptParameter.objects.filter(script_version=self).order_by('param_order', 'pk')
+
 
 class WooeyJob(WooeyPy2Mixin, models.Model):
     """
@@ -289,16 +292,18 @@ class ScriptParameter(UpdateScriptsMixin, WooeyPy2Mixin, models.Model):
     """
         This holds the parameter mapping for each script, and enforces uniqueness by each script via a FK.
     """
-    script_version = models.ForeignKey('ScriptVersion')
+    script_version = models.ManyToManyField('ScriptVersion')
     short_param = models.CharField(max_length=255, blank=True)
     script_param = models.CharField(max_length=255)
     slug = AutoSlugField(populate_from='script_param', unique=True)
     is_output = models.BooleanField(default=None)
     required = models.BooleanField(default=False)
-    # output_path = models.FilePathField(path=settings.MEDIA_ROOT, allow_folders=True, allow_files=False,
-    #                                    recursive=True, max_length=255)
     choices = models.CharField(max_length=255, null=True, blank=True)
     choice_limit = models.CharField(max_length=10, null=True, blank=True)
+    collapse_arguments = models.BooleanField(
+        default=True,
+        help_text=_('Collapse separate inputs to a given argument to a single input (ie: --arg 1 --arg 2 becomes --arg 1 2)')
+    )
     form_field = models.CharField(max_length=255)
     default = models.CharField(max_length=255, null=True, blank=True)
     input_type = models.CharField(max_length=255)
@@ -306,6 +311,7 @@ class ScriptParameter(UpdateScriptsMixin, WooeyPy2Mixin, models.Model):
     is_checked = models.BooleanField(default=False)
     hidden = models.BooleanField(default=False)
     parameter_group = models.ForeignKey('ScriptParameterGroup')
+    param_order = models.SmallIntegerField('The order the parameter appears to the user.', default=0)
 
     class Meta:
         app_label = 'wooey'
@@ -340,7 +346,8 @@ class ScriptParameter(UpdateScriptsMixin, WooeyPy2Mixin, models.Model):
             return choice_limit
 
     def __str__(self):
-        return '{}: {}'.format(self.script_version.script.script_name, self.script_param)
+        scripts = ', '.join([i.script.script_name for i in self.script_version.all()])
+        return '{}: {}'.format(scripts, self.script_param)
 
 
 # TODO: find a better name for this class. Job parameter? SelectedParameter?
@@ -388,7 +395,7 @@ class ScriptParameters(WooeyPy2Mixin, models.Model):
             return None
         field = self.parameter.form_field
         param = self.parameter.short_param
-        com = {'parameter': param}
+        com = {'parameter': param, 'script_parameter': self.parameter}
         if field == self.BOOLEAN:
             if value:
                 return com

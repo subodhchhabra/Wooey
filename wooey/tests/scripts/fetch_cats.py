@@ -3,14 +3,17 @@
 __author__ = 'Chris Mitchell'
 
 import argparse
-import sys
 import os
+import socket
+import sys
 from urllib import FancyURLopener
 from apiclient import discovery
 
 description = """
 This will find you cats, and optionally, kitties.
 """
+
+socket.setdefaulttimeout(10)
 
 parser = argparse.ArgumentParser(description = description)
 parser.add_argument('--count', help='The number of cats to find (max: 10)', type=int, default=1)
@@ -28,7 +31,7 @@ def main():
     searchTerm = 'kittens' if args.kittens else 'cats'
     cat_count = args.count if args.count < 10 else 10
     if args.breed:
-        searchTerm += '%20{0}'.format(args.breed)
+        searchTerm += ' {0}'.format(args.breed)
 
     # Notice that the start changes for each iteration in order to request a new set of images for each loop
     service = discovery.build('customsearch', 'v1', developerKey=os.environ.get('GOOGLE_DEV_KEY'))
@@ -43,10 +46,13 @@ def main():
     }
     request = cse.list(**search_kwrds)
     response = request.execute()
-    for item in response['items']:
+    for item in response.get('items', []):
         url = item.get('link')
         filename = url.split('/')[-1]
-        myopener.retrieve(url, filename)
+        try:
+            myopener.retrieve(url, filename)
+        except IOError:
+            continue
 
 
 if __name__ == "__main__":
